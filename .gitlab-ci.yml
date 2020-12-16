@@ -1,0 +1,21 @@
+stages:
+  - build
+
+.go:
+  image: golang:latest
+  variables:
+    GOPATH: $CI_PROJECT_DIR/.go
+  before_script:
+    - mkdir -p .go
+  cache:
+    paths:
+      - .go/pkg/mod/
+
+build:
+  extends: .go
+  stage: build
+  script:
+    - go build -i
+  artifacts:
+    paths:
+      - execvm
