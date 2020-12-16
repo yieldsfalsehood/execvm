@@ -1,21 +1,62 @@
 stages:
-  - build
+  - compile
+  - data
+  - pkginfo
+  - control
+  - apk
 
-.go:
+compile:
+  stage: compile
   image: golang:latest
-  variables:
-    GOPATH: $CI_PROJECT_DIR/.go
-  before_script:
-    - mkdir -p .go
-  cache:
-    paths:
-      - .go/pkg/mod/
-
-build:
-  extends: .go
-  stage: build
+  # cache:
+  #   paths:
+  #     - .go/pkg/mod/
+  # variables:
+  #   GOPATH: $CI_PROJECT_DIR/.go
   script:
-    - go build -i
+    # - mkdir -p .go
+    - make execvm
   artifacts:
     paths:
       - execvm
+
+data:
+  stage: data
+  image: islandora/abuild
+  script:
+    - make data.tar.gz
+  artifacts:
+    paths:
+      - data.tar.gz
+
+pkginfo:
+  stage: pkginfo
+  image:
+    name: hairyhenderson/gomplate:alpine
+    entrypoint: [""]
+  script:
+    - gomplate
+  artifacts:
+    paths:
+      - .PKGINFO
+
+control:
+  stage: control
+  image: islandora/abuild
+  script:
+    - make control.tar.gz
+  artifacts:
+    paths:
+      - control.tar.gz
+
+apk:
+  stage: apk
+  image: islandora/abuild
+  script:
+    - cat control.tar.gz data.tar.gz > execvm-latest.apk
+  artifacts:
+    paths:
+      - execvm-latest.apk
+
+# openssl genrsa -out emailaddress.priv 2048
+# openssl rsa -in emailaddress.priv -pubout -out /etc/apk/keys/emailaddress

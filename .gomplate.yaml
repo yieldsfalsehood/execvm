@@ -1,0 +1,5 @@
+in: |
+  pkgname = execvm
+  pkgver = 0.1
+  datahash = {{ file.Read "data.tar.gz" | crypto.SHA256 }}
+outputFiles: [.PKGINFO]
